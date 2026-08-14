@@ -19,4 +19,4 @@ Download the latest .NET Desktop Runtime for your operating system: https://dotn
 NOTE: Linux and OSX builds are untested, [create a GitHub issue](https://github.com/fourthstreetmedia/DVSviewer/issues) if it doesnt work.
 # Licensing
 This project does not have any association with DTI Group Ltd https://www.dti.com.au/, any DTI Group subsidiaries or the SFMTA https://www.sfmta.com/
-This project is licensed under the MIT Open Source License.
+<br>This project is licensed under the MIT Open Source License.
