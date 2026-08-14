@@ -1,5 +1,7 @@
 # DVSviewer
 Load and extract information from .dvs files created by DTI Technologies CCTV software.
+<img width="986" height="713" alt="image" src="https://github.com/user-attachments/assets/8f13553c-ae4d-4a22-8223-2c892e832afe" />
+<img width="986" height="713" alt="image" src="https://github.com/user-attachments/assets/57fbb3ec-1588-4a7f-93a2-df2a52884347" />
 ## Requirements
 .NET Desktop Runtime version 10.0.11 or later - https://dotnet.microsoft.com/en-us/download/dotnet/10.0
 ## Compatibility
