@@ -17,7 +17,7 @@ Download the latest .NET Desktop Runtime for your operating system: https://dotn
 3. Run chmod +x ./{folder name} (ex: chmod +x ./linux-x64)
 4. Run ./{folder name} in your terminal (ex: ./linux-x64)
 5. Alternatively, instead of steps 3 and 4, you can cd another level in (ex: cd linux-x64) and run the command "dotnet DvsViewer.dll"
-NOTE: Linux and OSX builds are untested, [create a GitHub issue](https://github.com/fourthstreetmedia/DVSviewer/issues) if it doesnt work.
+<br>NOTE: Linux and OSX builds are untested, [create a GitHub issue](https://github.com/fourthstreetmedia/DVSviewer/issues) if it doesnt work.
 ## Source code
 All source code is located in [/src/](https://github.com/fourthstreetmedia/DVSviewer/tree/main/src/)
 ## Licensing
