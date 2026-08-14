@@ -1,7 +1,7 @@
 # DVSviewer
 Load and extract information from .dvs files created by DTI Technologies CCTV software.
 ## Requirements
-.NET Runtime version 10.0 or later - https://dotnet.microsoft.com/en-us/download/dotnet/10.0
+.NET Desktop Runtime version 10.0.11 or later - https://dotnet.microsoft.com/en-us/download/dotnet/10.0
 ## Compatibility
 Should be compatible with all DTI Technologies .dvs files that would usually be played with DVSSPlayer. This program was tested using files provided through the San Francisco Municipal Transportation Agency (SFMTA/MUNI).
 
