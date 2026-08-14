@@ -1,0 +1,82 @@
+﻿<Window x:Class="DvsViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DvsViewer" Height="720" Width="1000" MinWidth="760" MinHeight="560"
+        FontFamily="{x:Static SystemFonts.MessageFontFamily}"
+        FontSize="{x:Static SystemFonts.MessageFontSize}"
+        UseLayoutRounding="True">
+    <DockPanel Margin="12">
+
+        
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <Button x:Name="OpenButton" Content="Open .dvs file..." Padding="14,6" DockPanel.Dock="Left"
+                    AllowDrop="True" Click="OpenButton_Click"
+                    DragOver="OpenButton_DragOver" Drop="OpenButton_Drop"
+                    ToolTip="Click to browse, or drag a .dvs file here"/>
+            <TextBlock x:Name="FileLabel" Text="No file loaded" VerticalAlignment="Center"
+                       Margin="12,0,0,0" TextTrimming="CharacterEllipsis"/>
+        </DockPanel>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            
+            <TextBlock x:Name="InfoText" Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8"
+                       Text="Open a .dvs file to see its contents and export the video, audio and GPS data."/>
+
+            
+            <GroupBox Grid.Row="1" Header="Tracks - select what to export" Padding="8" Margin="0,0,0,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                        <Button Content="Select all" Padding="10,3" Click="SelectAll_Click"/>
+                        <Button Content="Select none" Padding="10,3" Margin="6,0,0,0" Click="SelectNone_Click"/>
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="TracksPanel" Margin="0,2,0,0"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </GroupBox>
+
+            
+            <GroupBox Grid.Row="2" Header="Export options" Padding="8" Margin="0,0,0,8">
+                <WrapPanel>
+                    <CheckBox x:Name="OptVideo" Content="Video (.mp4)" IsChecked="True" Margin="0,0,18,0"/>
+                    <CheckBox x:Name="OptAudio" Content="Audio (.opus + .wav)" IsChecked="True" Margin="0,0,18,0"/>
+                    <CheckBox x:Name="OptMux" Content="Mix audio with video" IsChecked="True" Margin="0,0,18,0"/>
+                    <CheckBox x:Name="OptGps" Content="GPS (csv / gpx / kml)" IsChecked="True"/>
+                </WrapPanel>
+            </GroupBox>
+
+            
+            <DockPanel Grid.Row="3" Margin="0,0,0,8">
+                <Button x:Name="BrowseButton" Content="Browse..." Padding="12,4" DockPanel.Dock="Right"
+                        Click="Browse_Click"/>
+                <TextBox x:Name="OutDirBox" Margin="0,0,8,0" VerticalContentAlignment="Center"
+                         TextChanged="OutDirBox_TextChanged" ToolTip="Output folder"/>
+            </DockPanel>
+
+            
+            <Grid Grid.Row="4" Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="ExportButton" Content="Export" Padding="20,7" IsEnabled="False" Click="Export_Click"/>
+                <ProgressBar x:Name="ProgressBar" Grid.Column="1" Height="18" Margin="12,0,0,0"
+                             VerticalAlignment="Center" IsIndeterminate="False"/>
+            </Grid>
+
+            
+            <TextBox x:Name="LogBox" Grid.Row="5" IsReadOnly="True" AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                     BorderThickness="1" Padding="6" Margin="0,0,0,1"/>
+        </Grid>
+    </DockPanel>
+</Window>
