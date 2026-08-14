@@ -6,18 +6,9 @@ Load and extract information from .dvs files created by DTI Technologies CCTV so
 ## Compatibility
 Should be compatible with all DTI Technologies .dvs files that would usually be played with DVSSPlayer. This program was tested using files provided through the San Francisco Municipal Transportation Agency (SFMTA/MUNI).
 # Running the program (Prebuilt binaries)
-### ALL VERSIONS
-Download the latest .NET Desktop Runtime for your operating system: https://dotnet.microsoft.com/en-us/download/dotnet/10.0 
 ### Windows
 1. Download the latest release in [Releases](https://github.com/fourthstreetmedia/DVSviewer/releases) corresponding to your Windows version
 2. Run the file, the programs GUI will show up upon open
-### Linux/Mac
-1. Download the latest release in [Releases](https://github.com/fourthstreetmedia/DVSviewer/releases) corresponding to your OS version
-2. Extract the .zip and cd to the folder in your terminal (ex: cd ~/Downloads/linux-x64)
-3. Run chmod +x ./{folder name} (ex: chmod +x ./linux-x64)
-4. Run ./{folder name} in your terminal (ex: ./linux-x64)
-5. Alternatively, instead of steps 3 and 4, you can cd another level in (ex: cd linux-x64) and run the command "dotnet DvsViewer.dll"
-<br>NOTE: Linux and OSX builds are untested, [create a GitHub issue](https://github.com/fourthstreetmedia/DVSviewer/issues) if it doesnt work.
 ## Source code
 All source code is located in [/src/](https://github.com/fourthstreetmedia/DVSviewer/tree/main/src/)
 ## Licensing
