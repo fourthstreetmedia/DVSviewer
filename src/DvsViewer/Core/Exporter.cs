@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -21,7 +21,7 @@ public static class Exporter
         sb.Append("<gpx version=\"1.1\" creator=\"DVSS Extractor\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n");
         sb.Append("  <metadata><name>DVSS GPS Track</name></metadata>\n");
         sb.Append("  <trk><name>Vehicle</name><trkseg>\n");
-        foreach (var r in gps)
+        foreach (var r in SortedByTime(gps))
         {
             sb.Append($"    <trkpt lat=\"{F7(r.Lat)}\" lon=\"{F7(r.Lng)}\"><time>{r.TimeUtc}</time><speed>{F3(r.SpeedKmh)}</speed><course>{F1(r.Heading)}</course></trkpt>\n");
         }
@@ -33,30 +33,31 @@ public static class Exporter
     {
         var sb = new StringBuilder();
         sb.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        sb.Append("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><name>DVSS GPS</name>\n");
-        sb.Append("  <Style id='acc'><IconStyle><scale>0.6</scale></IconStyle></Style>\n");
-        foreach (var r in gps)
+        sb.Append("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><name>DVSS GPS Track</name>\n");
+        sb.Append("  <Style id='track'><LineStyle><color>ff0000ff</color><width>4</width></LineStyle></Style>\n");
+        sb.Append("  <Placemark><name>Vehicle</name><styleUrl>#track</styleUrl><LineString><tessellate>1</tessellate><altitudeMode>clampToGround</altitudeMode><coordinates>\n");
+        foreach (var r in SortedByTime(gps))
         {
-            sb.Append($"  <Placemark><name>{F1(r.SpeedKmh)} km/h</name><styleUrl>#acc</styleUrl><Point><coordinates>{F7(r.Lng)},{F7(r.Lat)},0</coordinates></Point></Placemark>\n");
+            sb.Append($"    {F7(r.Lng)},{F7(r.Lat)},0\n");
         }
-        sb.Append("</Document></kml>\n");
+        sb.Append("  </coordinates></LineString></Placemark>\n</Document></kml>\n");
         File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
     }
 
     public static void WriteGeoJson(string path, IReadOnlyList<GpsFix> gps)
     {
-        var coords = new StringBuilder();
-        var props = new StringBuilder();
-        foreach (var r in gps)
+        var sb = new StringBuilder();
+        foreach (var r in SortedByTime(gps))
         {
-            coords.Append($"[{F7(r.Lng)},{F7(r.Lat)}],");
-            props.Append($"{{\"time\":\"{r.TimeUtc}\",\"speed_kmh\":{F3(r.SpeedKmh)},\"heading\":{F1(r.Heading)}}},");
+            sb.Append($"[{F7(r.Lng)},{F7(r.Lat)}],");
         }
-        if (coords.Length > 0) { coords.Length -= 1; props.Length -= 1; }
-
-        var json = $"{{\"type\":\"FeatureCollection\",\"features\":[{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"LineString\",\"coordinates\":[{coords}]}},\"properties\":{{\"name\":\"DVSS GPS track\"}}}}]}}";
+        if (sb.Length > 0) sb.Length -= 1;
+        var json = $"{{\"type\":\"FeatureCollection\",\"features\":[{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"LineString\",\"coordinates\":[{sb}]}},\"properties\":{{\"name\":\"DVSS GPS track\"}}}}]}}";
         File.WriteAllText(path, json, Encoding.UTF8);
     }
+
+    private static List<GpsFix> SortedByTime(IReadOnlyList<GpsFix> gps)
+        => gps.OrderBy(g => g.Utc ?? DateTime.MinValue).ToList();
 
     public static void WriteFramesCsv(string path, IReadOnlyList<VideoFrame> frames)
     {
