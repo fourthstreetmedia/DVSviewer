@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -603,22 +603,12 @@ public static class DvsParser
             ch.FirstTimeUs = flist.Where(f => f.TimeUs > 0).Select(f => f.TimeUs).DefaultIfEmpty(0).Min();
             ch.LastTimeUs = flist.Where(f => f.TimeUs > 0).Select(f => f.TimeUs).DefaultIfEmpty(0).Max();
 
-            var ts = flist.Where(f => f.TimeUs > 0).Select(f => f.TimeUs).ToList();
+            var ts = flist.Where(f => f.TimeUs > 0).Select(f => f.TimeUs).OrderBy(t => t).ToList();
             ch.Fps = 15.0;
             if (ts.Count >= 2)
             {
-                var deltas = new List<double>();
-                for (int i = 1; i < ts.Count; i++)
-                {
-                    double d = (ts[i] - ts[i - 1]) / 1e6;
-                    if (d > 0) deltas.Add(d);
-                }
-                if (deltas.Count > 0)
-                {
-                    deltas.Sort();
-                    double med = deltas[deltas.Count / 2];
-                    if (med > 0) ch.Fps = Math.Round(1.0 / med, 3);
-                }
+                double spanUs = ts[^1] - ts[0];
+                if (spanUs > 0) ch.Fps = Math.Round((ts.Count - 1) * 1_000_000.0 / spanUs, 3);
             }
             file.Channels.Add(ch);
         }
