@@ -607,11 +607,49 @@ public static class DvsParser
             ch.Fps = 15.0;
             if (ts.Count >= 2)
             {
-                double spanUs = ts[^1] - ts[0];
-                if (spanUs > 0) ch.Fps = Math.Round((ts.Count - 1) * 1_000_000.0 / spanUs, 3);
+                var deltas = new List<long>(ts.Count - 1);
+                for (int i = 1; i < ts.Count; i++)
+                {
+                    long us = ts[i] - ts[i - 1];
+                    if (us > 0) deltas.Add(us);
+                }
+                double fps = EstimateFrameFps(deltas);
+                if (fps > 0) ch.Fps = Math.Round(fps, 3);
             }
             file.Channels.Add(ch);
         }
+    }
+
+    public static double EstimateFrameFps(IReadOnlyList<long> deltasUs)
+    {
+        int n = deltasUs.Count;
+        if (n == 0) return 0;
+
+        double totalUs = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (deltasUs[i] <= 0) return 0;
+            totalUs += deltasUs[i];
+        }
+        if (totalUs <= 0) return 0;
+        double fps = n / (totalUs / 1e6);
+        for (int pass = 0; pass < 3; pass++)
+        {
+            double thresholdUs = Math.Max(4.0 * 1e6 / fps, 250_000.0);
+            double keptUs = 0;
+            int kept = 0;
+            for (int i = 0; i < n; i++)
+            {
+                if (deltasUs[i] <= thresholdUs) { keptUs += deltasUs[i]; kept++; }
+            }
+            if (kept < 2 || keptUs <= 0) break;
+
+            double refined = (kept - 1) / (keptUs / 1e6);
+            bool converged = Math.Abs(refined - fps) < 0.001;
+            fps = refined;
+            if (converged) break;
+        }
+        return fps > 0 && fps < 1000 ? fps : 0;
     }
 
     private static void LinkAudioToVideo(DvsFile file)
