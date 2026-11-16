@@ -277,26 +277,33 @@ public static class DvsParser
             }
 
             var markers = buf.FindOccurrences(marker, blk, region);
-            int framesInBlock = 0;
-            for (int m = 0; m < markers.Count; m++)
+            var frameMarkers = new List<(long Offset, long Null, long Start, Dictionary<string, string> Metadata)>();
+            foreach (long ib in markers)
             {
-                long ib = markers[m];
                 long nul = buf.IndexOf(Zero, ib, Math.Min(region, ib + 4096));
                 if (nul < 0) continue;
 
-                var meta = ParseMetadata(buf, ib, nul);
-                if (!meta.ContainsKey("CN")) continue;
+                var metadata = ParseMetadata(buf, ib, nul);
+                if (!metadata.ContainsKey("CN")) continue;
 
-                long frameEnd = m + 1 < markers.Count ? markers[m + 1] : region;
-
-                long scEnd = Math.Min(Math.Min(frameEnd, buf.Length), nul + 64);
+                long scEnd = Math.Min(Math.Min(region, buf.Length), nul + 64);
                 long sc4 = buf.IndexOf(StartCode4, nul, scEnd);
                 long sc3 = buf.IndexOf(StartCode3, nul, scEnd);
-                long sc = sc4 >= 0 ? sc4 : sc3;
-                if (sc < 0) continue;
+                long start = sc4 >= 0 ? sc4 : sc3;
+                if (start >= 0 && ib < blk + dataSize && start < blk + dataSize)
+                    frameMarkers.Add((ib, nul, start, metadata));
+            }
 
+            int framesInBlock = 0;
+            long dataEnd = Math.Min(blk + dataSize, region);
+            for (int m = 0; m < frameMarkers.Count; m++)
+            {
+                var (ib, nul, sc, meta) = frameMarkers[m];
+                long frameEnd = m + 1 < frameMarkers.Count
+                    ? Math.Min(frameMarkers[m + 1].Offset, dataEnd)
+                    : dataEnd;
                 long payloadLen = frameEnd - sc;
-                if (payloadLen < 8) continue;
+                if (payloadLen < 8 || payloadLen > int.MaxValue) continue;
 
                 ulong t = 0;
                 if (framesInBlock < indexRecs.Count) t = indexRecs[framesInBlock].t;
