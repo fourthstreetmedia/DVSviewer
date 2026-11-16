@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 
 namespace DvsViewer.Core;
 
@@ -19,13 +19,54 @@ public static class OggOpusWriter
         outStream.Write(_OggPage(serial, 1, 0, new[] { tagsPacket }, 0x00));
 
         long granule = 0;
-        for (int i = 0; i < packets.Count; i++)
+        uint sequence = 2;
+        for (int first = 0; first < packets.Count;)
         {
-            granule += 160;
-            byte headerType = (byte)(i == packets.Count - 1 ? 0x04 : 0x00);
-            outStream.Write(_OggPage(serial, (uint)(i + 2), granule, new[] { packets[i] }, headerType));
+            var pagePackets = new List<byte[]>(50);
+            int segments = 0;
+            while (first < packets.Count && pagePackets.Count < 50)
+            {
+                var packet = packets[first];
+                int packetSegments = packet.Length / 255 + 1;
+                if (segments + packetSegments > 255 && pagePackets.Count > 0) break;
+                pagePackets.Add(packet);
+                segments += packetSegments;
+                granule += PacketDuration48k(packet);
+                first++;
+            }
+
+            byte headerType = (byte)(first == packets.Count ? 0x04 : 0x00);
+            outStream.Write(_OggPage(serial, sequence++, granule, pagePackets, headerType));
         }
         return outStream.ToArray();
+    }
+
+    private static int PacketDuration48k(byte[] packet)
+    {
+        if (packet.Length == 0) return 960;
+
+        int toc = packet[0];
+        int config = toc >> 3;
+        int frameDuration48k = config >= 16
+            ? 120 << (config & 3)                 // 2.5, 5, 10, or 20 ms
+            : config >= 12
+                ? ((config & 1) == 0 ? 480 : 960) // 10 or 20 ms
+                : (config & 3) switch             // 10, 20, 40, or 60 ms
+                {
+                    0 => 480,
+                    1 => 960,
+                    2 => 1920,
+                    _ => 2880,
+                };
+
+        int frameCount = (toc & 3) switch
+        {
+            0 => 1,
+            1 or 2 => 2,
+            _ => packet.Length > 1 ? packet[1] & 0x3f : 0,
+        };
+        int duration = frameDuration48k * frameCount;
+        return duration is > 0 and <= 5760 ? duration : 960;
     }
 
     private static byte[] BuildOpusHead(int channels, int rate)
